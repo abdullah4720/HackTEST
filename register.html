@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الفريق — HackOS</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070d1a; --surface: #0d1625; --card: #111e33; --border: #1a2d4a;
+  --text: #e2eaf7; --muted: #5a7499; --soft: #8aa8cc;
+  --teal: #00c9a7; --blue: #3b82f6; --gold: #f59e0b; --rose: #f43f5e; --purple: #a78bfa;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+  padding: 40px 20px 80px;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(0,201,167,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,201,167,0.03) 1px, transparent 1px);
+  background-size: 32px 32px; pointer-events: none;
+}
+
+/* ── HEADER ── */
+.page-header { text-align: center; margin-bottom: 40px; z-index: 1; }
+.logo-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px; }
+.logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--teal), var(--blue)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.logo-name { font-size: 20px; font-weight: 700; }
+h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+.page-sub { color: var(--muted); font-size: 13px; }
+
+/* ── STEPPER ── */
+.stepper { display: flex; align-items: center; gap: 0; margin-bottom: 36px; z-index: 1; }
+.step { display: flex; align-items: center; gap: 8px; }
+.step-circle {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  border: 2px solid var(--border);
+  background: var(--surface); color: var(--muted);
+  transition: all 0.3s;
+}
+.step.active .step-circle { border-color: var(--teal); background: rgba(0,201,167,0.1); color: var(--teal); }
+.step.done .step-circle { border-color: var(--teal); background: var(--teal); color: #070d1a; }
+.step-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.step.active .step-label { color: var(--teal); font-weight: 600; }
+.step.done .step-label { color: var(--soft); }
+.step-line { width: 48px; height: 1px; background: var(--border); margin: 0 4px; }
+.step-line.done { background: var(--teal); }
+
+/* ── FORM CARD ── */
+.form-card {
+  width: 100%; max-width: 680px; z-index: 1;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; overflow: hidden;
+}
+.form-card-header {
+  padding: 24px 28px; border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.form-card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.form-card-sub { font-size: 12px; color: var(--muted); }
+.form-body { padding: 28px; }
+
+/* ── STEP PAGES ── */
+.step-page { display: none; }
+.step-page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:translateX(0); } }
+
+/* ── HACKATHON TYPE SELECTOR ── */
+.type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+.type-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 14px; padding: 18px 16px; cursor: pointer;
+  transition: all 0.2s; text-align: center;
+}
+.type-card:hover { border-color: var(--blue); }
+.type-card.selected { border-color: var(--teal); background: rgba(0,201,167,0.06); }
+.type-emoji { font-size: 28px; margin-bottom: 8px; }
+.type-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.type-desc { font-size: 10px; color: var(--muted); line-height: 1.5; }
+
+/* ── FORM FIELDS ── */
+.field { margin-bottom: 20px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--soft); margin-bottom: 8px; text-transform: uppercase; }
+label span { color: var(--rose); }
+
+input, select, textarea {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px; color: var(--text);
+  font-family: inherit; font-size: 13px; outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--teal); }
+input::placeholder, textarea::placeholder { color: var(--muted); }
+select option { background: var(--card); }
+textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+.field-hint { font-size: 10px; color: var(--muted); margin-top: 5px; }
+.char-count { font-size: 10px; color: var(--muted); text-align: left; margin-top: 4px; }
+
+/* ── MEMBER BLOCK ── */
+.member-block {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px; margin-bottom: 12px;
+  position: relative;
+}
+.member-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.member-title { font-size: 12px; font-weight: 700; color: var(--teal); }
+.member-remove { background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 6px; transition: color 0.15s; }
+.member-remove:hover { color: var(--rose); }
+
+.add-member-btn {
+  width: 100%; padding: 12px; border: 1px dashed var(--border);
+  background: none; color: var(--muted); font-family: inherit; font-size: 12px;
+  border-radius: 12px; cursor: pointer; transition: all 0.2s; margin-top: 4px;
+}
+.add-member-btn:hover { border-color: var(--teal); color: var(--teal); background: rgba(0,201,167,0.04); }
+
+/* ── FILE UPLOAD ── */
+.file-drop {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 28px; text-align: center; cursor: pointer; transition: all 0.2s;
+  background: var(--surface);
+}
+.file-drop:hover, .file-drop.over { border-color: var(--teal); background: rgba(0,201,167,0.04); }
+.file-icon { font-size: 28px; margin-bottom: 8px; }
+.file-text { font-size: 12px; color: var(--muted); }
+.file-text strong { color: var(--teal); }
+.file-types { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+/* ── REVIEW ── */
+.review-section { margin-bottom: 20px; }
+.review-section-title { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.review-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px; }
+.review-row:last-child { border-bottom: none; }
+.review-key { color: var(--muted); }
+.review-val { color: var(--text); font-weight: 500; text-align: left; max-width: 60%; }
+
+.terms-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 20px; }
+.terms-row { display: flex; gap: 10px; align-items: flex-start; }
+.terms-row input[type=checkbox] { width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0; accent-color: var(--teal); }
+.terms-row label { font-size: 12px; color: var(--soft); text-transform: none; letter-spacing: 0; font-weight: 400; }
+.terms-row label a { color: var(--teal); text-decoration: none; }
+
+/* ── FOOTER BUTTONS ── */
+.form-footer {
+  padding: 20px 28px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--surface);
+}
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 11px 24px; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.18s; }
+.btn-primary { background: var(--teal); color: #070d1a; }
+.btn-primary:hover { background: #00e0ba; transform: translateY(-1px); }
+.btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+.btn-ghost { background: var(--card); border: 1px solid var(--border); color: var(--soft); }
+.btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+.step-counter { font-size: 11px; color: var(--muted); }
+
+/* ── SUCCESS ── */
+.success-page { text-align: center; padding: 40px 28px; display: none; }
+.success-icon { font-size: 60px; margin-bottom: 16px; animation: bounce 0.6s ease; }
+@keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+.success-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--teal); }
+.success-sub { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+.ref-code { display: inline-block; background: var(--surface); border: 1px solid var(--teal); border-radius: 10px; padding: 10px 20px; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; color: var(--teal); margin-bottom: 20px; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar { height: 3px; background: var(--border); }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--blue)); transition: width 0.4s ease; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo-row">
+    <div class="logo-icon">🏆</div>
+    <div class="logo-name">HackOS</div>
+  </div>
+  <h1>تسجيل فريق جديد</h1>
+  <div class="page-sub">أكمل الخطوات الأربع للتسجيل · يستغرق حوالي 5 دقائق</div>
+</div>
+
+<!-- STEPPER -->
+<div class="stepper">
+  <div class="step active" id="s1"><div class="step-circle">1</div><div class="step-label">نوع الهاكثون</div></div>
+  <div class="step-line" id="l1"></div>
+  <div class="step" id="s2"><div class="step-circle">2</div><div class="step-label">معلومات الفريق</div></div>
+  <div class="step-line" id="l2"></div>
+  <div class="step" id="s3"><div class="step-circle">3</div><div class="step-label">الأعضاء والمشروع</div></div>
+  <div class="step-line" id="l3"></div>
+  <div class="step" id="s4"><div class="step-circle">4</div><div class="step-label">المراجعة والإرسال</div></div>
+</div>
+
+<!-- FORM CARD -->
+<div class="form-card">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
+
+  <!-- STEP 1 -->
+  <div class="form-card-header">
+    <div class="form-card-title" id="stepTitle">اختر نوع الهاكثون</div>
+    <div class="form-card-sub" id="stepSub">حدد نوع الهاكثون الذي تريد المشاركة فيه</div>
+  </div>
+
+  <div class="form-body">
+    <!-- Step 1: Type Selection -->
+    <div class="step-page active" id="page1">
+      <div class="type-grid">
+        <div class="type-card" onclick="selectType(this,'tech')">
+          <div class="type-emoji">💻</div>
+          <div class="type-name">تقني / برمجي</div>
+          <div class="type-desc">تطوير تطبيقات وحلول تقنية مبتكرة</div>
+        </div>
+        <div class="type-card" onclick="selectType(this,'social')">
+          <div class="type-emoji">🤝</div>
+          <div class="type-name">اجتماعي / ريادي</div>
+          <div class="type-desc">مشاريع ريادة أعمال وتأثير اجتماعي</div>
+        </div>
+        <div class="type-card" onclick="selectType(this,'health')">
+          <div class="type-emoji">❤️</div>
+          <div class="type-name">صحة رقمية</div>
+          <div class="type-desc">حلول صحية وطبية مبتكرة بالتقنية</div>
+        </div>
+        <div class="type-card" onclick="selectType(this,'env')">
+          <div class="type-emoji">🌱</div>
+          <div class="type-name">بيئي / استدامة</div>
+          <div class="type-desc">مشاريع حماية البيئة والاستدامة</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>الهاكثون المستهدف <span>*</span></label>
+        <select id="hackSelect">
+          <option value="">— اختر الهاكثون —</option>
+          <option>هاكثون الذكاء الاصطناعي · 5-7 أبريل 2026</option>
+          <option>هاكثون الاستدامة البيئية · 15-16 أبريل 2026</option>
+          <option>هاكثون الصحة الرقمية · 20-22 أبريل 2026</option>
+          <option>هاكثون ريادة الأعمال · 30 أبريل 2026</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Step 2: Team Info -->
+    <div class="step-page" id="page2">
+      <div class="field"><label>اسم الفريق <span>*</span></label><input type="text" placeholder="مثال: فريق ابتكار+" maxlength="50" oninput="updateChar(this,'ch_teamname')"><div class="char-count" id="ch_teamname">0 / 50</div></div>
+      <div class="field-row">
+        <div class="field"><label>الجامعة / المؤسسة <span>*</span></label><select><option value="">اختر</option><option>جامعة القصيم</option><option>جامعة الملك سعود</option><option>جامعة الملك عبدالعزيز</option><option>جامعة الملك فهد</option><option>مؤسسة خاصة</option><option>أخرى</option></select></div>
+        <div class="field"><label>المنطقة <span>*</span></label><select><option value="">اختر</option><option>الرياض</option><option>القصيم</option><option>مكة المكرمة</option><option>المدينة المنورة</option><option>الشرقية</option><option>أخرى</option></select></div>
+      </div>
+      <div class="field"><label>وصف الفريق <span>*</span></label><textarea placeholder="صف فريقك ومهاراتكم ونقاط قوتكم..." maxlength="300" oninput="updateChar(this,'ch_desc')"></textarea><div class="char-count" id="ch_desc">0 / 300</div></div>
+      <div class="field-row">
+        <div class="field"><label>مستوى الخبرة</label><select><option>مبتدئ</option><option>متوسط</option><option selected>متقدم</option></select></div>
+        <div class="field"><label>قاطمت سابقاً؟</label><select><option>لا، أول مرة</option><option>نعم، مرة</option><option>نعم، أكثر من مرة</option></select></div>
+      </div>
+    </div>
+
+    <!-- Step 3: Members + Project -->
+    <div class="step-page" id="page3">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--soft)">أعضاء الفريق</div>
+        <div style="font-size:10px;color:var(--muted)">من 2 إلى 5 أعضاء</div>
+      </div>
+      <div id="membersContainer">
+        <div class="member-block">
+          <div class="member-header"><div class="member-title">👑 قائد الفريق</div></div>
+          <div class="field-row" style="margin-bottom:12px"><div class="field" style="margin:0"><label>الاسم الكامل <span>*</span></label><input type="text" placeholder="الاسم"></div><div class="field" style="margin:0"><label>البريد الإلكتروني <span>*</span></label><input type="email" placeholder="email@example.com"></div></div>
+          <div class="field-row"><div class="field" style="margin:0"><label>رقم الجوال <span>*</span></label><input type="tel" placeholder="+966 5x xxx xxxx"></div><div class="field" style="margin:0"><label>التخصص</label><input type="text" placeholder="مثال: هندسة برمجيات"></div></div>
+        </div>
+      </div>
+      <button class="add-member-btn" onclick="addMember()">+ إضافة عضو آخر</button>
+
+      <div style="margin-top:24px;margin-bottom:14px;font-size:12px;font-weight:700;color:var(--soft)">فكرة المشروع</div>
+      <div class="field"><label>عنوان المشروع <span>*</span></label><input type="text" placeholder="اسم مشروعك المبتكر"></div>
+      <div class="field"><label>ملخص المشروع <span>*</span></label><textarea placeholder="اشرح مشكلتك والحل المقترح في 3-5 جمل..." maxlength="500" oninput="updateChar(this,'ch_proj')"></textarea><div class="char-count" id="ch_proj">0 / 500</div></div>
+
+      <div class="field">
+        <label>ملف الـ Pitch / خطة العمل</label>
+        <div class="file-drop" onclick="document.getElementById('fileInput').click()" id="fileDrop">
+          <div class="file-icon">📎</div>
+          <div class="file-text"><strong>اضغط للرفع</strong> أو اسحب الملف هنا</div>
+          <div class="file-types">PDF، PPT، PPTX · الحد الأقصى 10MB</div>
+        </div>
+        <input type="file" id="fileInput" accept=".pdf,.ppt,.pptx" style="display:none" onchange="handleFile(this)">
+      </div>
+    </div>
+
+    <!-- Step 4: Review -->
+    <div class="step-page" id="page4">
+      <div class="review-section">
+        <div class="review-section-title">🏅 نوع الهاكثون</div>
+        <div class="review-row"><span class="review-key">النوع</span><span class="review-val" id="rv_type">—</span></div>
+        <div class="review-row"><span class="review-key">الهاكثون</span><span class="review-val" id="rv_hack">—</span></div>
+      </div>
+      <div class="review-section">
+        <div class="review-section-title">👥 الفريق</div>
+        <div class="review-row"><span class="review-key">اسم الفريق</span><span class="review-val" id="rv_name">—</span></div>
+        <div class="review-row"><span class="review-key">المؤسسة</span><span class="review-val" id="rv_org">—</span></div>
+        <div class="review-row"><span class="review-key">عدد الأعضاء</span><span class="review-val" id="rv_count">—</span></div>
+      </div>
+      <div class="review-section">
+        <div class="review-section-title">💡 المشروع</div>
+        <div class="review-row"><span class="review-key">عنوان المشروع</span><span class="review-val" id="rv_proj">—</span></div>
+        <div class="review-row"><span class="review-key">الملف المرفق</span><span class="review-val" id="rv_file">لم يُرفع ملف</span></div>
+      </div>
+      <div class="terms-box">
+        <div class="terms-row"><input type="checkbox" id="terms1"><label for="terms1">أوافق على <a href="#">شروط وأحكام</a> المشاركة في الهاكثون</label></div>
+      </div>
+      <div class="terms-box">
+        <div class="terms-row"><input type="checkbox" id="terms2"><label for="terms2">أقر بأن جميع المعلومات المدخلة صحيحة ودقيقة</label></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-footer">
+    <button class="btn btn-ghost" id="prevBtn" onclick="prevStep()" style="visibility:hidden">→ السابق</button>
+    <div class="step-counter" id="stepCounter">الخطوة 1 من 4</div>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">التالي ←</button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-page" id="successPage">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">تم التسجيل بنجاح!</div>
+    <div class="success-sub">تم إرسال طلب تسجيل فريقك. سيتم مراجعة طلبك وإرسال تأكيد عبر البريد الإلكتروني خلال 24 ساعة.</div>
+    <div class="ref-code" id="refCode">HOS-2026-0000</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:24px">احتفظ برمز التسجيل هذا للمتابعة</div>
+    <button class="btn btn-primary" onclick="location.reload()">تسجيل فريق آخر</button>
+  </div>
+</div>
+
+<script>
+let currentStep = 1;
+let selectedType = '';
+let memberCount = 1;
+
+const stepTitles = ['اختر نوع الهاكثون','معلومات الفريق','الأعضاء والمشروع','المراجعة والإرسال'];
+const stepSubs = ['حدد نوع الهاكثون الذي تريد المشاركة فيه','أدخل بيانات فريقك والمؤسسة','أضف أعضاء الفريق وفكرة مشروعك','راجع البيانات قبل الإرسال النهائي'];
+
+function updateStepUI() {
+  for (let i = 1; i <= 4; i++) {
+    const s = document.getElementById('s'+i);
+    s.className = 'step' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    const c = s.querySelector('.step-circle');
+    c.textContent = i < currentStep ? '✓' : i;
+    if (i < 4) document.getElementById('l'+i).className = 'step-line' + (i < currentStep ? ' done' : '');
+  }
+  document.querySelectorAll('.step-page').forEach((p,i) => p.className = 'step-page' + (i+1===currentStep?' active':''));
+  document.getElementById('stepTitle').textContent = stepTitles[currentStep-1];
+  document.getElementById('stepSub').textContent = stepSubs[currentStep-1];
+  document.getElementById('stepCounter').textContent = `الخطوة ${currentStep} من 4`;
+  document.getElementById('progressFill').style.width = (currentStep*25)+'%';
+  document.getElementById('prevBtn').style.visibility = currentStep > 1 ? 'visible' : 'hidden';
+  document.getElementById('nextBtn').textContent = currentStep === 4 ? '✓ إرسال الطلب' : 'التالي ←';
+}
+
+function selectType(el, type) {
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = type;
+}
+
+function nextStep() {
+  if (currentStep === 4) { submitForm(); return; }
+  currentStep++;
+  if (currentStep === 4) fillReview();
+  updateStepUI();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep() {
+  if (currentStep > 1) { currentStep--; updateStepUI(); }
+}
+
+function fillReview() {
+  const typeNames = { tech:'تقني / برمجي 💻', social:'اجتماعي / ريادي 🤝', health:'صحة رقمية ❤️', env:'بيئي / استدامة 🌱' };
+  document.getElementById('rv_type').textContent = typeNames[selectedType] || '—';
+  document.getElementById('rv_hack').textContent = document.getElementById('hackSelect').value || '—';
+  document.getElementById('rv_name').textContent = document.querySelector('#page2 input')?.value || '—';
+  document.getElementById('rv_org').textContent = document.querySelector('#page2 select')?.value || '—';
+  document.getElementById('rv_count').textContent = memberCount + ' عضو';
+  document.getElementById('rv_proj').textContent = document.querySelector('#page3 input')?.value || '—';
+}
+
+function addMember() {
+  if (memberCount >= 5) { alert('الحد الأقصى 5 أعضاء'); return; }
+  memberCount++;
+  const div = document.createElement('div');
+  div.className = 'member-block';
+  div.innerHTML = `<div class="member-header"><div class="member-title">👤 عضو ${memberCount}</div><button class="member-remove" onclick="removeMember(this)">✕</button></div><div class="field-row" style="margin-bottom:12px"><div class="field" style="margin:0"><label>الاسم الكامل</label><input type="text" placeholder="الاسم"></div><div class="field" style="margin:0"><label>البريد الإلكتروني</label><input type="email" placeholder="email@example.com"></div></div><div class="field-row"><div class="field" style="margin:0"><label>رقم الجوال</label><input type="tel" placeholder="+966"></div><div class="field" style="margin:0"><label>التخصص</label><input type="text" placeholder="التخصص"></div></div>`;
+  document.getElementById('membersContainer').appendChild(div);
+}
+
+function removeMember(btn) { btn.closest('.member-block').remove(); memberCount--; }
+
+function updateChar(el, id) {
+  document.getElementById(id).textContent = `${el.value.length} / ${el.maxLength}`;
+}
+
+function handleFile(input) {
+  if (input.files[0]) {
+    const drop = document.getElementById('fileDrop');
+    drop.innerHTML = `<div class="file-icon">✅</div><div class="file-text"><strong>${input.files[0].name}</strong></div><div class="file-types">${(input.files[0].size/1024/1024).toFixed(2)} MB</div>`;
+    document.getElementById('rv_file').textContent = input.files[0].name;
+  }
+}
+
+function submitForm() {
+  if (!document.getElementById('terms1').checked || !document.getElementById('terms2').checked) {
+    alert('الرجاء الموافقة على الشروط والأحكام أولاً'); return;
+  }
+  document.getElementById('successPage').style.display = 'block';
+  document.querySelector('.form-body').style.display = 'none';
+  document.querySelector('.form-footer').style.display = 'none';
+  document.querySelector('.form-card-header').style.display = 'none';
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('refCode').textContent = 'HOS-2026-' + Math.floor(Math.random()*9000+1000);
+}
+</script>
+</body>
+</html>

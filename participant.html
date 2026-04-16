@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HackOS — بوابة المشاركين</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070d1a;--surface:#0d1625;--card:#111e33;--border:#1a2d4a;--text:#e2eaf7;--muted:#5a7499;--soft:#8aa8cc;--teal:#00c9a7;--blue:#3b82f6;--gold:#f59e0b;--rose:#f43f5e;--purple:#a78bfa;--green:#22c55e;--orange:#fb923c;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,201,167,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,201,167,.02) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;z-index:0;}
+
+/* ── TOPNAV ── */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(7,13,26,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--teal),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.nav-logo-name{font-size:15px;font-weight:700;}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:500;color:var(--soft);cursor:pointer;transition:all .18s;background:none;border:none;font-family:inherit;}
+.nav-link:hover{background:rgba(255,255,255,.04);color:var(--text);}
+.nav-link.active{background:rgba(0,201,167,.08);color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-team-badge{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;}
+.team-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+
+/* ── CONTENT ── */
+.content{position:relative;z-index:1;}
+.page{display:none;}
+.page.active{display:block;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HERO ── */
+.hero{padding:48px 28px 32px;max-width:1100px;margin:0 auto;}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:28px;flex-wrap:wrap;}
+.hero-title{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:6px;}
+.hero-title span{background:linear-gradient(135deg,var(--teal),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:13px;color:var(--muted);}
+.hero-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* ── COUNTDOWN BANNER ── */
+.countdown-banner{background:linear-gradient(135deg,rgba(0,201,167,.06),rgba(59,130,246,.04));border:1px solid rgba(0,201,167,.15);border-radius:14px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.cd-label{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.cd-boxes{display:flex;gap:8px;}
+.cd-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:52px;}
+.cd-num{font-size:20px;font-weight:800;color:var(--teal);line-height:1;}
+.cd-unit{font-size:9px;color:var(--muted);margin-top:2px;}
+.cd-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--teal);}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
+
+/* ── GRID ── */
+.g{display:grid;gap:14px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:1fr 1fr 1fr;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g32{grid-template-columns:3fr 2fr;}
+@media(max-width:900px){.g2,.g3,.g32{grid-template-columns:1fr;}.g4{grid-template-columns:1fr 1fr;}}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px;}
+.card-body{padding:18px;}
+.card-action{font-size:11px;color:var(--teal);cursor:pointer;background:none;border:none;font-family:inherit;}
+
+/* ── KPI ── */
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;right:0;left:0;height:2px;background:var(--kc,var(--teal));}
+.kpi-val{font-size:26px;font-weight:800;color:var(--kc,var(--teal));line-height:1.1;}
+.kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:5px;}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:600;}
+.b-teal{background:rgba(0,201,167,.12);color:var(--teal);border:1px solid rgba(0,201,167,.2);}
+.b-blue{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.2);}
+.b-gold{background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.2);}
+.b-rose{background:rgba(244,63,94,.12);color:var(--rose);border:1px solid rgba(244,63,94,.2);}
+.b-purple{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.2);}
+.b-green{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+.b-muted{background:rgba(90,116,153,.12);color:var(--muted);border:1px solid rgba(90,116,153,.2);}
+
+/* ── PROGRESS ── */
+.prog-bar{height:6px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--teal),var(--blue));}
+
+/* ── SERVICE CARD ── */
+.service-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:all .2s;cursor:pointer;}
+.service-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,201,167,.08);}
+.svc-icon{font-size:26px;margin-bottom:10px;}
+.svc-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+.svc-desc{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+.svc-avail{font-size:10px;color:var(--teal);}
+
+/* ── MENTOR REQUEST ── */
+.mentor-slot{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:border-color .18s;}
+.mentor-slot:hover{border-color:var(--teal);}
+.mentor-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+
+/* ── CHECKLIST ── */
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.check-item:last-child{border-bottom:none;}
+.check-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;transition:all .18s;}
+.check-box.done{background:var(--teal);border-color:var(--teal);}
+.check-label{font-size:12px;}
+.check-label.done{color:var(--muted);text-decoration:line-through;}
+
+/* ── ANNOUNCE ITEM ── */
+.ann-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.ann-item:last-child{border-bottom:none;}
+.ann-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.ann-title{font-size:12px;font-weight:600;margin-bottom:2px;}
+.ann-body{font-size:11px;color:var(--muted);line-height:1.5;}
+.ann-time{font-size:10px;color:var(--muted);margin-top:3px;}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{padding:9px 13px;text-align:right;font-size:9px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface);}
+tbody td{padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--soft);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:rgba(255,255,255,.02);}
+td strong{color:var(--text);}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:18px;width:100%;max-width:520px;animation:modalIn .25s ease;}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:14px;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:22px;}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.field{margin-bottom:16px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+label{display:block;font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--soft);margin-bottom:7px;text-transform:uppercase;}
+input,select,textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border-color .2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);}
+input::placeholder,textarea::placeholder{color:var(--muted);}
+
+/* ── BTN ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .18s;text-decoration:none;}
+.btn-primary{background:var(--teal);color:#070d1a;}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-ghost{background:var(--card);border:1px solid var(--border);color:var(--soft);}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.btn-sm{padding:6px 13px;font-size:11px;border-radius:7px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:11px 22px;font-size:12px;font-weight:600;z-index:999;transition:transform .3s;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:rgba(0,201,167,.4);color:var(--teal);}
+.toast.err{border-color:rgba(244,63,94,.4);color:var(--rose);}
+
+/* ── TIMELINE ── */
+.tl{position:relative;padding-right:22px;}
+.tl::before{content:'';position:absolute;right:8px;top:0;bottom:0;width:1px;background:var(--border);}
+.tl-item{position:relative;padding-bottom:18px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{position:absolute;right:-18px;top:4px;width:10px;height:10px;border-radius:50%;border:2px solid var(--border);background:var(--surface);}
+.tl-dot.done{background:var(--teal);border-color:var(--teal);}
+.tl-dot.now{background:var(--gold);border-color:var(--gold);animation:pulse2 1.5s infinite;}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4)}50%{box-shadow:0 0 0 5px rgba(245,158,11,0)}}
+.tl-time{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.tl-title{font-size:12px;font-weight:600;margin-bottom:2px;}
+.tl-loc{font-size:10px;color:var(--muted);}
+
+.page-inner{max-width:1100px;margin:0 auto;padding:0 28px 60px;}
+</style>
+</head>
+<body>
+
+<!-- ── TOPNAV ── -->
+<nav class="topnav">
+  <div class="nav-logo">
+    <div class="nav-logo-icon">⚡</div>
+    <div class="nav-logo-name">HackOS <span style="color:var(--muted);font-weight:400">المشاركون</span></div>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="navTo('home',this)">🏠 الرئيسية</button>
+    <button class="nav-link" onclick="navTo('myteam',this)">👥 فريقي</button>
+    <button class="nav-link" onclick="navTo('services',this)">🛠️ الخدمات</button>
+    <button class="nav-link" onclick="navTo('mentors',this)">🎓 الإرشاد</button>
+    <button class="nav-link" onclick="navTo('schedule',this)">📅 البرنامج</button>
+    <button class="nav-link" onclick="navTo('leaderboard',this)">🏆 المتصدرون</button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-team-badge">
+      <div class="team-av">N</div>
+      <div>
+        <div style="font-size:11px;font-weight:700">NovaMind</div>
+        <div style="font-size:9px;color:var(--muted)">🤖 ذكاء اصطناعي</div>
+      </div>
+    </div>
+    <a href="register.html" class="btn btn-ghost btn-sm">خروج</a>
+  </div>
+</nav>
+
+<div class="content">
+
+  <!-- ══ PAGE: HOME ══ -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="hero-title">مرحباً، <span>نوف العتيبي</span> 👋</div>
+          <div class="hero-sub">فريق NovaMind • مسار الذكاء الاصطناعي • HackOS 2025</div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-ghost btn-sm" onclick="navTo('mentors',null)">🎓 طلب إرشاد</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('submitModal')">📤 تسليم المشروع</button>
+        </div>
+      </div>
+
+      <!-- Countdown -->
+      <div class="countdown-banner">
+        <div>
+          <div class="cd-label">الوقت المتبقي حتى موعد التسليم النهائي</div>
+          <div class="cd-boxes">
+            <div class="cd-box"><div class="cd-num" id="cd-h">05</div><div class="cd-unit">ساعة</div></div>
+            <div class="cd-box"><div class="cd-num" id="cd-m">30</div><div class="cd-unit">دقيقة</div></div>
+            <div class="cd-box"><div class="cd-num" id="cd-s">00</div><div class="cd-unit">ثانية</div></div>
+          </div>
+        </div>
+        <div class="cd-status"><div class="live-dot"></div>الهاكثون جارٍ الآن</div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="g g4" style="margin-bottom:16px">
+        <div class="kpi" style="--kc:var(--teal)"><div style="font-size:20px;margin-bottom:6px">📊</div><div class="kpi-val">85%</div><div class="kpi-label">تقدم المشروع</div></div>
+        <div class="kpi" style="--kc:var(--blue)"><div style="font-size:20px;margin-bottom:6px">👤</div><div class="kpi-val">5</div><div class="kpi-label">أعضاء الفريق</div></div>
+        <div class="kpi" style="--kc:var(--gold)"><div style="font-size:20px;margin-bottom:6px">🎓</div><div class="kpi-val">3</div><div class="kpi-label">جلسات إرشاد</div></div>
+        <div class="kpi" style="--kc:var(--purple)"><div style="font-size:20px;margin-bottom:6px">🏆</div><div class="kpi-val">#1</div><div class="kpi-label">الترتيب الحالي</div></div>
+      </div>
+
+      <div class="g g32">
+        <!-- Checklist -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">✅ قائمة المهام</div><span class="badge b-teal">3/6 مكتمل</span></div>
+          <div class="card-body" id="checklist-body"></div>
+        </div>
+        <!-- Announcements -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">📢 آخر الإعلانات</div><button class="card-action">الكل</button></div>
+          <div class="card-body" style="padding:12px 16px">
+            <div class="ann-item"><div class="ann-icon" style="background:rgba(244,63,94,.1);color:var(--rose)">🚨</div><div><div class="ann-title">تذكير: موعد تسليم النموذج الأولي</div><div class="ann-body">يُرجى تسليم MVP بحلول الساعة 5 مساءً</div><div class="ann-time">منذ 30 دقيقة</div></div></div>
+            <div class="ann-item"><div class="ann-icon" style="background:rgba(245,158,11,.1);color:var(--gold)">⭐</div><div><div class="ann-title">ورشة الذكاء الاصطناعي الساعة 2 م</div><div class="ann-body">حضور مفتوح للجميع في القاعة الكبرى</div><div class="ann-time">منذ 2 ساعة</div></div></div>
+            <div class="ann-item"><div class="ann-icon" style="background:rgba(59,130,246,.1);color:var(--blue)">📣</div><div><div class="ann-title">مفاتيح Google Cloud API جاهزة</div><div class="ann-body">تواصل مع طاولة الدعم التقني في المدخل</div><div class="ann-time">منذ 3 ساعات</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: MY TEAM ══ -->
+  <div class="page" id="page-myteam">
+    <div class="page-inner" style="padding-top:28px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+        <div><div style="font-size:20px;font-weight:800;margin-bottom:3px">👥 فريق NovaMind</div><div style="font-size:12px;color:var(--muted)">🤖 مسار الذكاء الاصطناعي • HackOS 2025</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('editTeamModal')">✏️ تعديل</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('submitModal')">📤 تسليم المشروع</button>
+        </div>
+      </div>
+
+      <div class="g g32" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📋 معلومات المشروع</div></div>
+          <div class="card-body">
+            <div style="margin-bottom:16px">
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">اسم المشروع</div>
+              <div style="font-size:14px;font-weight:700">NovaMind Analytics Platform</div>
+            </div>
+            <div style="margin-bottom:16px">
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">الوصف</div>
+              <div style="font-size:12px;color:var(--soft);line-height:1.6">منصة ذكاء اصطناعي متكاملة لتحليل بيانات المدينة الذكية وتحسين كفاءة الخدمات العامة باستخدام نماذج اللغة الكبيرة.</div>
+            </div>
+            <div style="margin-bottom:16px">
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">تقدم المشروع</div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px"><span>التقدم الكلي</span><span>85%</span></div>
+              <div class="prog-bar" style="height:8px"><div class="prog-fill" style="width:85%"></div></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span class="badge b-teal">🤖 ذكاء اصطناعي</span>
+              <span class="badge b-blue">Python</span>
+              <span class="badge b-purple">GPT-4</span>
+              <span class="badge b-muted">React</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">⚖️ نتائج التقييم</div><span class="badge b-teal">مكتمل</span></div>
+          <div class="card-body">
+            <div style="text-align:center;margin-bottom:16px">
+              <div style="font-size:42px;font-weight:800;color:var(--teal)">94.2</div>
+              <div style="font-size:11px;color:var(--muted)">مجموع الدرجات من 100</div>
+            </div>
+            <div id="score-breakdown"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team members -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">👤 أعضاء الفريق</div><button class="card-action" onclick="openModal('inviteModal')">+ دعوة عضو</button></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الاسم</th><th>الدور</th><th>البريد الإلكتروني</th><th>المساهمات</th><th>الحالة</th></tr></thead>
+            <tbody id="members-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: SERVICES ══ -->
+  <div class="page" id="page-services">
+    <div class="page-inner" style="padding-top:28px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+        <div><div style="font-size:20px;font-weight:800;margin-bottom:3px">🛠️ الخدمات والموارد</div><div style="font-size:12px;color:var(--muted)">موارد تقنية ومادية مقدمة لجميع الفرق المشاركة</div></div>
+      </div>
+
+      <div class="g g3" style="margin-bottom:20px" id="services-grid"></div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 طلباتي السابقة</div></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الخدمة</th><th>تاريخ الطلب</th><th>الحالة</th><th>ملاحظة</th></tr></thead>
+            <tbody id="my-requests-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: MENTORS ══ -->
+  <div class="page" id="page-mentors">
+    <div class="page-inner" style="padding-top:28px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+        <div><div style="font-size:20px;font-weight:800;margin-bottom:3px">🎓 الإرشاد والمرشدون</div><div style="font-size:12px;color:var(--muted)">تواصل مع المرشدين المتخصصين لدعم مشروعك</div></div>
+      </div>
+
+      <div style="background:rgba(0,201,167,.05);border:1px solid rgba(0,201,167,.15);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px">
+        <div style="font-size:20px">💡</div>
+        <div style="font-size:12px;color:var(--soft);line-height:1.6">جلساتك القادمة: <strong style="color:var(--text)">فيصل الزهراني</strong> — تقنية — غداً الساعة 2:00 م — غرفة B-12</div>
+      </div>
+
+      <div class="g g3" style="margin-bottom:20px" id="mentors-grid"></div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 طلبات الإرشاد</div><button class="card-action" onclick="openModal('requestMentorModal')">+ طلب جديد</button></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>المرشد</th><th>الموضوع</th><th>التاريخ</th><th>الحالة</th></tr></thead>
+            <tbody id="mentor-requests-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: SCHEDULE ══ -->
+  <div class="page" id="page-schedule">
+    <div class="page-inner" style="padding-top:28px">
+      <div style="font-size:20px;font-weight:800;margin-bottom:4px">📅 برنامج الهاكثون</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:22px">الجدول الزمني الكامل لفعاليات HackOS 2025</div>
+      <div class="g g2">
+        <div class="card"><div class="card-header"><div class="card-title">📅 اليوم الأول — الجمعة</div><span class="badge b-teal">٩ مايو</span></div><div class="card-body"><div class="tl" id="sched-day1"></div></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">📅 اليوم الثاني — السبت</div><span class="badge b-blue">١٠ مايو</span></div><div class="card-body"><div class="tl" id="sched-day2"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: LEADERBOARD ══ -->
+  <div class="page" id="page-leaderboard">
+    <div class="page-inner" style="padding-top:28px">
+      <div style="font-size:20px;font-weight:800;margin-bottom:4px">🏆 لوحة المتصدرين</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:22px">الترتيب الحالي بناءً على تقييمات لجنة التحكيم</div>
+      <!-- Podium -->
+      <div style="display:flex;gap:12px;margin-bottom:20px;align-items:flex-end" id="podium"></div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 الترتيب الكامل</div></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الترتيب</th><th>الفريق</th><th>المسار</th><th>الدرجة</th><th>التقدم</th></tr></thead>
+            <tbody id="lb-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- ══ MODALS ══ -->
+
+<!-- Submit Project -->
+<div class="modal-bg" id="submitModal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">📤 تسليم المشروع</div><button class="modal-close" onclick="closeModal('submitModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>رابط GitHub / GitLab <span style="color:var(--rose)">*</span></label><input id="s-repo" placeholder="https://github.com/yourteam/project"></div>
+      <div class="field"><label>رابط العرض التقديمي</label><input id="s-deck" placeholder="https://docs.google.com/..."></div>
+      <div class="field"><label>رابط الديمو (اختياري)</label><input id="s-demo" placeholder="https://your-demo.com"></div>
+      <div class="field"><label>ملاحظات للمحكّمين</label><textarea id="s-notes" rows="3" placeholder="أي معلومات إضافية تريد إيصالها..."></textarea></div>
+      <div style="background:rgba(0,201,167,.05);border:1px solid rgba(0,201,167,.15);border-radius:8px;padding:12px;font-size:11px;color:var(--soft)">⚠️ بعد التسليم لا يمكن تعديل الروابط. تأكد من صحة المعلومات قبل الإرسال.</div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('submitModal')">إلغاء</button><button class="btn btn-primary" onclick="submitProject()">✅ تسليم نهائي</button></div>
+  </div>
+</div>
+
+<!-- Request Mentor -->
+<div class="modal-bg" id="requestMentorModal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">🎓 طلب جلسة إرشاد</div><button class="modal-close" onclick="closeModal('requestMentorModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>المرشد</label><select id="req-mentor"><option>فيصل الزهراني — تقنية</option><option>ريم الأحمدي — أعمال</option><option>لمى السبيعي — صحة رقمية</option></select></div>
+      <div class="field"><label>موضوع الجلسة</label><input id="req-topic" placeholder="ما الذي تحتاج مساعدة فيه؟"></div>
+      <div class="field-row">
+        <div class="field"><label>الوقت المفضل</label><input id="req-time" type="time" value="14:00"></div>
+        <div class="field"><label>المدة</label><select id="req-dur"><option>30 دقيقة</option><option selected>60 دقيقة</option></select></div>
+      </div>
+      <div class="field"><label>تفاصيل إضافية</label><textarea id="req-details" rows="2" placeholder="صف المشكلة أو السؤال بشكل مختصر..."></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('requestMentorModal')">إلغاء</button><button class="btn btn-primary" onclick="requestMentor()">إرسال الطلب</button></div>
+  </div>
+</div>
+
+<!-- Service Request -->
+<div class="modal-bg" id="serviceModal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="svc-modal-title">طلب خدمة</div><button class="modal-close" onclick="closeModal('serviceModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="font-size:24px;margin-bottom:6px" id="svc-modal-icon">☁️</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px" id="svc-modal-name">Cloud Credits</div>
+        <div style="font-size:11px;color:var(--muted)" id="svc-modal-desc">اعتمادات Google Cloud بقيمة $300</div>
+      </div>
+      <div class="field"><label>سبب الطلب</label><textarea id="svc-reason" rows="2" placeholder="كيف ستستخدم هذه الخدمة في مشروعك؟"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('serviceModal')">إلغاء</button><button class="btn btn-primary" onclick="confirmService()">✅ تأكيد الطلب</button></div>
+  </div>
+</div>
+
+<!-- Invite -->
+<div class="modal-bg" id="inviteModal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">👤 دعوة عضو</div><button class="modal-close" onclick="closeModal('inviteModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>البريد الإلكتروني</label><input id="inv-email" placeholder="member@email.com" type="email"></div>
+      <div class="field"><label>الدور في الفريق</label><select id="inv-role"><option>مطور Full-Stack</option><option>مطور Back-End</option><option>مطور Front-End</option><option>مصمم UI/UX</option><option>محلل بيانات</option><option>مدير منتج</option></select></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('inviteModal')">إلغاء</button><button class="btn btn-primary" onclick="inviteMember()">إرسال الدعوة</button></div>
+  </div>
+</div>
+
+<!-- Edit Team -->
+<div class="modal-bg" id="editTeamModal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">✏️ تعديل معلومات الفريق</div><button class="modal-close" onclick="closeModal('editTeamModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>اسم المشروع</label><input id="et-name" value="NovaMind Analytics Platform"></div>
+      <div class="field"><label>الوصف</label><textarea id="et-desc" rows="3">منصة ذكاء اصطناعي متكاملة لتحليل بيانات المدينة الذكية وتحسين كفاءة الخدمات العامة.</textarea></div>
+      <div class="field"><label>التقنيات المستخدمة</label><input id="et-tech" value="Python, GPT-4, React, FastAPI"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('editTeamModal')">إلغاء</button><button class="btn btn-primary" onclick="saveTeam()">💾 حفظ</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+// ── DATA ──
+const DATA = {
+  checklist: [
+    {id:1,label:'تسجيل الفريق والأعضاء',done:true},
+    {id:2,label:'اختيار مسار الهاكثون',done:true},
+    {id:3,label:'تسليم النموذج الأولي (MVP)',done:true},
+    {id:4,label:'حجز جلسة إرشاد مع مرشد',done:false},
+    {id:5,label:'تحضير ملف العرض التقديمي',done:false},
+    {id:6,label:'التسليم النهائي للمشروع',done:false},
+  ],
+  members: [
+    {name:'نوف العتيبي',role:'مدير المشروع',email:'n.otaibi@team.com',contrib:'قيادة الفريق / التنسيق',status:'active'},
+    {name:'عبدالله الشمري',role:'مطور Back-End',email:'a.shamri@team.com',contrib:'بناء API وقاعدة البيانات',status:'active'},
+    {name:'سلطان المالكي',role:'مطور Front-End',email:'s.malki@team.com',contrib:'واجهة المستخدم',status:'active'},
+    {name:'دانة القحطاني',role:'محلل بيانات',email:'d.qahtani@team.com',contrib:'نماذج الذكاء الاصطناعي',status:'active'},
+    {name:'ريان العسيري',role:'مصمم UI/UX',email:'r.asiri@team.com',contrib:'التصميم والتجربة',status:'active'},
+  ],
+  scores: [
+    {label:'💡 الابتكار',val:24,max:25},
+    {label:'⚙️ التقنية',val:23,max:25},
+    {label:'🎯 الأثر',val:19,max:20},
+    {label:'🎨 العرض',val:14,max:15},
+    {label:'📈 التوسع',val:14,max:15},
+  ],
+  services: [
+    {name:'Cloud Credits',icon:'☁️',desc:'اعتمادات Google Cloud بقيمة $300 لكل فريق',avail:25,used:18,status:'available'},
+    {name:'OpenAI API',icon:'🤖',desc:'وصول كامل لنماذج GPT-4 وDALL-E',avail:25,used:20,status:'available'},
+    {name:'Figma Pro',icon:'🎨',desc:'ترخيص Figma المدفوع لتصميم الواجهات',avail:25,used:15,status:'available'},
+    {name:'GitHub Copilot',icon:'💻',desc:'مساعد البرمجة الذكي لتسريع التطوير',avail:25,used:22,status:'available'},
+    {name:'MongoDB Atlas',icon:'🍃',desc:'قاعدة بيانات سحابية مجانية M10',avail:25,used:10,status:'available'},
+    {name:'وجبات مجانية',icon:'🍕',desc:'وجبات وسناكس وعصائر طوال اليوم',avail:100,used:67,status:'available'},
+  ],
+  myRequests: [
+    {service:'OpenAI API',date:'2025-05-09 10:23',status:'approved',note:'تمت الموافقة، المفتاح في بريدك'},
+    {service:'Cloud Credits',date:'2025-05-09 10:45',status:'approved',note:'تم تفعيل الحساب'},
+  ],
+  mentors: [
+    {name:'فيصل الزهراني',spec:'تقنية',sessions:8,status:'available',color:'#00c9a7,#3b82f6'},
+    {name:'ريم الأحمدي',spec:'أعمال',sessions:6,status:'available',color:'#f59e0b,#a78bfa'},
+    {name:'بدر العتيبي',spec:'تصميم',sessions:5,status:'busy',color:'#22c55e,#06b6d4'},
+    {name:'لمى السبيعي',spec:'صحة رقمية',sessions:7,status:'available',color:'#f43f5e,#fb923c'},
+  ],
+  mentorRequests: [
+    {mentor:'فيصل الزهراني',topic:'تكامل API واجهة برمجية',date:'2025-05-09 11:00',status:'approved'},
+    {mentor:'ريم الأحمدي',topic:'نموذج الأعمال',date:'2025-05-08 15:00',status:'done'},
+    {mentor:'بدر العتيبي',topic:'تصميم UI',date:'2025-05-09 14:00',status:'pending'},
+  ],
+  teams: [
+    {rank:1,name:'NovaMind',track:'🤖 AI',score:94.2,prog:85,isMe:true},
+    {rank:2,name:'GreenTech',track:'💚 استدامة',score:91.5,prog:72,isMe:false},
+    {rank:3,name:'HealthAI',track:'🏥 صحة',score:88.7,prog:68,isMe:false},
+    {rank:4,name:'DataFlow',track:'🤖 AI',score:85.1,prog:55,isMe:false},
+    {rank:5,name:'EduBot',track:'📚 تعليم',score:82.4,prog:60,isMe:false},
+    {rank:6,name:'BioSync',track:'🏥 صحة',score:79.3,prog:40,isMe:false},
+    {rank:7,name:'SolarNet',track:'⚡ طاقة',score:76.8,prog:35,isMe:false},
+  ],
+  events: {
+    1:[
+      {time:'08:00',title:'التسجيل والاستقبال',loc:'المدخل الرئيسي',status:'done'},
+      {time:'09:00',title:'الحفل الافتتاحي',loc:'القاعة الكبرى',status:'done'},
+      {time:'10:00',title:'🚀 انطلاق الهاكثون',loc:'قاعة التطوير',status:'done'},
+      {time:'12:00',title:'جلسات الإرشاد الأولى',loc:'غرف الإرشاد',status:'now'},
+      {time:'14:00',title:'ورشة الذكاء الاصطناعي',loc:'القاعة الكبرى',status:'upcoming'},
+      {time:'17:00',title:'تسليم النموذج الأولي',loc:'منصة إلكترونية',status:'upcoming'},
+      {time:'20:00',title:'عشاء المشاركين',loc:'المنطقة الخارجية',status:'upcoming'},
+    ],
+    2:[
+      {time:'08:00',title:'استئناف التطوير',loc:'قاعة التطوير',status:'upcoming'},
+      {time:'10:00',title:'جلسة إرشاد أخيرة',loc:'غرف الإرشاد',status:'upcoming'},
+      {time:'12:00',title:'إغلاق باب التسليم',loc:'منصة إلكترونية',status:'upcoming'},
+      {time:'13:00',title:'عروض المشاريع',loc:'القاعة الكبرى',status:'upcoming'},
+      {time:'16:30',title:'مداولات التحكيم',loc:'غرفة المحكّمين',status:'upcoming'},
+      {time:'17:30',title:'🏆 حفل التتويج',loc:'القاعة الكبرى',status:'upcoming'},
+    ]
+  }
+};
+
+// ── NAV ──
+function navTo(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) { document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+  renderPage(page);
+}
+
+function renderPage(p) {
+  if (p === 'home') renderHome();
+  if (p === 'myteam') renderMyTeam();
+  if (p === 'services') renderServices();
+  if (p === 'mentors') renderMentors();
+  if (p === 'schedule') renderSchedule();
+  if (p === 'leaderboard') renderLeaderboard();
+}
+
+// ── RENDER ──
+function renderHome() {
+  // Checklist
+  const body = document.getElementById('checklist-body');
+  if (body) body.innerHTML = DATA.checklist.map(c => `
+    <div class="check-item">
+      <div class="check-box ${c.done ? 'done' : ''}" onclick="toggleCheck(${c.id})">${c.done ? '✓' : ''}</div>
+      <div class="check-label ${c.done ? 'done' : ''}">${c.label}</div>
+      ${c.done ? '<span class="badge b-teal" style="font-size:9px">✓</span>' : ''}
+    </div>`).join('');
+}
+
+function renderMyTeam() {
+  // Score breakdown
+  const sb = document.getElementById('score-breakdown');
+  if (sb) sb.innerHTML = DATA.scores.map(s => `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="font-size:11px;color:var(--muted);width:120px">${s.label}</div>
+      <div style="flex:1;height:5px;background:var(--border);border-radius:100px;overflow:hidden"><div style="width:${s.val/s.max*100}%;height:100%;background:linear-gradient(90deg,var(--teal),var(--blue))"></div></div>
+      <div style="font-size:11px;font-weight:700;color:var(--teal);min-width:36px">${s.val}/${s.max}</div>
+    </div>`).join('');
+  // Members
+  const mt = document.getElementById('members-tbody');
+  if (mt) mt.innerHTML = DATA.members.map(m => `
+    <tr><td><strong>${m.name}</strong></td><td><span class="badge b-blue" style="font-size:9px">${m.role}</span></td>
+    <td style="font-size:11px;color:var(--muted)">${m.email}</td>
+    <td style="font-size:11px;color:var(--muted)">${m.contrib}</td>
+    <td><span class="badge b-teal" style="font-size:9px">● نشط</span></td></tr>`).join('');
+}
+
+function renderServices() {
+  const grid = document.getElementById('services-grid');
+  if (grid) grid.innerHTML = DATA.services.map(s => `
+    <div class="service-card" onclick="requestService('${s.name}','${s.icon}','${s.desc}')">
+      <div class="svc-icon">${s.icon}</div>
+      <div class="svc-name">${s.name}</div>
+      <div class="svc-desc">${s.desc}</div>
+      <div style="margin-bottom:6px"><span class="badge b-teal" style="font-size:9px">${s.avail - s.used} متاح</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${s.used/s.avail*100}%"></div></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:5px">${s.used}/${s.avail} مستخدم</div>
+    </div>`).join('');
+  const tbody = document.getElementById('my-requests-tbody');
+  const stMap = {approved:'<span class="badge b-teal">مقبول ✓</span>',pending:'<span class="badge b-gold">قيد المراجعة</span>',done:'<span class="badge b-muted">منتهي</span>'};
+  if (tbody) tbody.innerHTML = DATA.myRequests.map(r => `
+    <tr><td><strong>${r.service}</strong></td><td style="font-size:11px;color:var(--muted)">${r.date}</td><td>${stMap[r.status]}</td><td style="font-size:11px;color:var(--muted)">${r.note}</td></tr>`).join('');
+}
+
+function renderMentors() {
+  const grid = document.getElementById('mentors-grid');
+  const stMap = {available:'b-teal',busy:'b-rose'};
+  const stLabel = {available:'متاح',busy:'مشغول'};
+  if (grid) grid.innerHTML = DATA.mentors.map(m => `
+    <div class="card" style="text-align:center">
+      <div class="card-body" style="padding:20px">
+        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,${m.color});display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;margin:0 auto 10px">${m.name.charAt(0)}</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:3px">${m.name}</div>
+        <div style="font-size:10px;background:rgba(0,201,167,.08);color:var(--teal);padding:2px 10px;border-radius:100px;display:inline-block;margin-bottom:8px">${m.spec}</div>
+        <div style="margin-bottom:8px"><span class="badge ${stMap[m.status]}">${stLabel[m.status]}</span></div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:12px">${m.sessions} جلسة مكتملة</div>
+        <button class="btn btn-sm btn-primary" style="width:100%" onclick="${m.status==='available'?'openModal(\'requestMentorModal\')':'toast(\'المرشد مشغول حالياً\',\'err\')'}">
+          ${m.status==='available'?'طلب جلسة':'مشغول حالياً'}</button>
+      </div>
+    </div>`).join('');
+  const tbody = document.getElementById('mentor-requests-tbody');
+  const stM = {approved:'<span class="badge b-teal">مقبول</span>',pending:'<span class="badge b-gold">قيد المراجعة</span>',done:'<span class="badge b-muted">مكتمل</span>'};
+  if (tbody) tbody.innerHTML = DATA.mentorRequests.map(r => `
+    <tr><td><strong>${r.mentor}</strong></td><td>${r.topic}</td><td style="font-size:11px;color:var(--muted)">${r.date}</td><td>${stM[r.status]}</td></tr>`).join('');
+}
+
+function renderSchedule() {
+  [1, 2].forEach(day => {
+    const el = document.getElementById(`sched-day${day}`);
+    if (!el) return;
+    el.innerHTML = DATA.events[day].map(e => `
+      <div class="tl-item">
+        <div class="tl-dot ${e.status}"></div>
+        <div class="tl-time">${e.time}${e.status==='now'?' — <span style="color:var(--gold);font-weight:600">جارٍ الآن</span>':''}</div>
+        <div class="tl-title">${e.title}</div>
+        <div class="tl-loc">📍 ${e.loc}</div>
+      </div>`).join('');
+  });
+}
+
+function renderLeaderboard() {
+  const podium = document.getElementById('podium');
+  const top3 = [DATA.teams[1], DATA.teams[0], DATA.teams[2]];
+  const medals = ['🥈','🥇','🥉'];
+  if (podium) podium.innerHTML = top3.map((t, i) => `
+    <div style="flex:1;text-align:center;padding:${i===1?20:14}px 10px;background:var(--card);border:1px solid ${t.isMe?'rgba(0,201,167,.4)':i===1?'rgba(245,158,11,.25)':'var(--border)'};border-radius:14px;${t.isMe?'box-shadow:0 0 20px rgba(0,201,167,.1)':''}">
+      <div style="font-size:${i===1?28:22}px">${medals[i]}</div>
+      <div style="font-size:12px;font-weight:700;margin:6px 0 2px;color:${t.isMe?'var(--teal)':'var(--text)'}">${t.name}${t.isMe?' (فريقك)':''}</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:6px">${t.track}</div>
+      <div style="font-size:${i===1?22:16}px;font-weight:800;color:${i===1?'var(--gold)':'var(--teal)'}">${t.score}</div>
+    </div>`).join('');
+  const tbody = document.getElementById('lb-tbody');
+  if (tbody) tbody.innerHTML = DATA.teams.map(t => `
+    <tr style="${t.isMe?'background:rgba(0,201,167,.04);':''}">
+      <td><strong style="color:${t.rank<=3?'var(--gold)':'var(--muted)'}">${t.rank <= 3 ? ['🥇','🥈','🥉'][t.rank-1] : '#'+t.rank}</strong></td>
+      <td><strong style="color:${t.isMe?'var(--teal)':'var(--text)'}">${t.name}${t.isMe?' ★':''}</strong></td>
+      <td>${t.track}</td>
+      <td><strong style="color:var(--teal)">${t.score}</strong></td>
+      <td style="min-width:100px"><div style="display:flex;align-items:center;gap:6px"><div class="prog-bar" style="flex:1"><div class="prog-fill" style="width:${t.prog}%"></div></div><span style="font-size:10px;color:var(--muted)">${t.prog}%</span></div></td>
+    </tr>`).join('');
+}
+
+// ── ACTIONS ──
+function toggleCheck(id) {
+  const item = DATA.checklist.find(c => c.id === id);
+  if (item) { item.done = !item.done; renderHome(); }
+}
+
+function requestService(name, icon, desc) {
+  document.getElementById('svc-modal-title').textContent = 'طلب ' + name;
+  document.getElementById('svc-modal-icon').textContent = icon;
+  document.getElementById('svc-modal-name').textContent = name;
+  document.getElementById('svc-modal-desc').textContent = desc;
+  openModal('serviceModal');
+}
+
+function confirmService() {
+  const reason = document.getElementById('svc-reason').value.trim();
+  if (!reason) { toast('يرجى إدخال سبب الطلب', 'err'); return; }
+  closeModal('serviceModal');
+  toast('✅ تم إرسال طلب الخدمة بنجاح', 'ok');
+  document.getElementById('svc-reason').value = '';
+}
+
+function requestMentor() {
+  const topic = document.getElementById('req-topic').value.trim();
+  if (!topic) { toast('يرجى إدخال موضوع الجلسة', 'err'); return; }
+  DATA.mentorRequests.unshift({mentor: document.getElementById('req-mentor').value.split('—')[0].trim(), topic, date: 'الآن', status: 'pending'});
+  closeModal('requestMentorModal');
+  toast('✅ تم إرسال طلب الإرشاد', 'ok');
+  renderMentors();
+}
+
+function inviteMember() {
+  const email = document.getElementById('inv-email').value.trim();
+  if (!email) { toast('يرجى إدخال البريد الإلكتروني', 'err'); return; }
+  closeModal('inviteModal');
+  toast('📧 تم إرسال الدعوة إلى ' + email, 'ok');
+}
+
+function submitProject() {
+  const repo = document.getElementById('s-repo').value.trim();
+  if (!repo) { toast('رابط GitHub مطلوب', 'err'); return; }
+  closeModal('submitModal');
+  toast('🎉 تم تسليم المشروع بنجاح!', 'ok');
+  DATA.checklist[5].done = true;
+}
+
+function saveTeam() {
+  closeModal('editTeamModal');
+  toast('💾 تم حفظ معلومات الفريق', 'ok');
+}
+
+// ── MODALS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast-el');
+  el.textContent = msg; el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ── COUNTDOWN ──
+const deadline = new Date(); deadline.setHours(deadline.getHours() + 5, 30, 0, 0);
+setInterval(() => {
+  const diff = deadline - new Date(); if (diff <= 0) return;
+  const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('cd-h').textContent = pad(h);
+  document.getElementById('cd-m').textContent = pad(m);
+  document.getElementById('cd-s').textContent = pad(s);
+}, 1000);
+
+// Init
+renderHome();
+</script>
+</body>
+</html>
