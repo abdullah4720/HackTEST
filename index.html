@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HackOS 2025 — منصة إدارة الهاكثون</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070d1a;--surface:#0d1625;--card:#111e33;--border:#1a2d4a;--text:#e2eaf7;--muted:#5a7499;--soft:#8aa8cc;--teal:#00c9a7;--blue:#3b82f6;--gold:#f59e0b;--rose:#f43f5e;--purple:#a78bfa;--green:#22c55e;--orange:#fb923c;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── BG EFFECTS ── */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,201,167,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,201,167,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+.orb-1{width:600px;height:600px;top:-200px;right:-200px;background:radial-gradient(circle,rgba(0,201,167,.08) 0%,transparent 70%);}
+.orb-2{width:500px;height:500px;bottom:-150px;left:-150px;background:radial-gradient(circle,rgba(59,130,246,.07) 0%,transparent 70%);}
+
+/* ── HEADER ── */
+header{position:sticky;top:0;z-index:100;background:rgba(7,13,26,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 48px;height:62px;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--teal),var(--blue));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px rgba(0,201,167,.25);}
+.logo-name{font-size:18px;font-weight:800;letter-spacing:-.02em;}
+.logo-name span{color:var(--teal);}
+.logo-tag{font-size:9px;color:var(--muted);letter-spacing:.12em;display:block;margin-top:1px;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.live-badge{display:flex;align-items:center;gap:6px;background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.2);border-radius:100px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--teal);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;text-align:center;padding:80px 24px 60px;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(0,201,167,.07);border:1px solid rgba(0,201,167,.15);border-radius:100px;padding:5px 16px;font-size:11px;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:22px;}
+.hero-title{font-size:clamp(36px,6vw,68px);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:16px;}
+.hero-title .grad{background:linear-gradient(135deg,var(--teal),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:16px;color:var(--muted);max-width:520px;margin:0 auto 40px;line-height:1.7;}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:11px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none;}
+.btn-primary{background:var(--teal);color:#070d1a;box-shadow:0 0 24px rgba(0,201,167,.3);}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 4px 32px rgba(0,201,167,.4);}
+.btn-ghost{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--soft);}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.btn-sm{padding:8px 16px;font-size:12px;border-radius:8px;}
+
+/* ── STATS ROW ── */
+.stats-row{display:flex;justify-content:center;gap:0;max-width:700px;margin:0 auto 70px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.stat-item{flex:1;padding:20px 16px;text-align:center;border-left:1px solid var(--border);}
+.stat-item:last-child{border-left:none;}
+.stat-num{font-size:28px;font-weight:800;color:var(--teal);line-height:1;}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:5px;}
+
+/* ── PORTALS ── */
+.portals{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px 80px;}
+.section-title{text-align:center;margin-bottom:40px;}
+.section-title h2{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px;}
+.section-title p{font-size:14px;color:var(--muted);}
+
+.portals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:900px){.portals-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.portals-grid{grid-template-columns:1fr;}}
+
+.portal-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;text-decoration:none;display:block;}
+.portal-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:var(--pc);opacity:.7;transition:opacity .25s;}
+.portal-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.1);box-shadow:0 16px 48px rgba(0,0,0,.4);}
+.portal-card:hover::before{opacity:1;}
+.portal-glow{position:absolute;top:-60px;right:-60px;width:160px;height:160px;border-radius:50%;opacity:.06;background:var(--pc);transition:opacity .25s;}
+.portal-card:hover .portal-glow{opacity:.12;}
+.portal-icon{font-size:36px;margin-bottom:14px;}
+.portal-name{font-size:17px;font-weight:800;margin-bottom:5px;letter-spacing:-.01em;}
+.portal-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:18px;}
+.portal-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px;}
+.portal-tag{font-size:9px;padding:2px 8px;border-radius:100px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--soft);}
+.portal-cta{display:flex;align-items:center;justify-content:space-between;}
+.portal-access{font-size:11px;font-weight:600;color:var(--pc);}
+.portal-arrow{font-size:16px;color:var(--pc);transition:transform .2s;}
+.portal-card:hover .portal-arrow{transform:translateX(-4px);}
+
+/* Large card spanning 2 cols */
+.portal-card.wide{grid-column:span 2;}
+@media(max-width:900px){.portal-card.wide{grid-column:span 1;}}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;text-align:center;padding:32px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;}
+footer a{color:var(--teal);text-decoration:none;}
+
+/* countdown in hero */
+.cd-mini{display:inline-flex;gap:6px;margin-bottom:20px;}
+.cd-mini-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 10px;text-align:center;min-width:44px;}
+.cd-mini-num{font-size:18px;font-weight:800;color:var(--teal);line-height:1;}
+.cd-mini-unit{font-size:8px;color:var(--muted);margin-top:1px;}
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-name">Hack<span>OS</span></div>
+      <div class="logo-tag">HACKATHON MANAGEMENT PLATFORM</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div>الهاكثون جارٍ الآن</div>
+    <a href="register.html" class="btn btn-ghost btn-sm">تسجيل فريق</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">⚡ HackOS 2025 — الرياض</div>
+  <h1 class="hero-title">منصة إدارة<br><span class="grad">الهاكثون الشاملة</span></h1>
+  <p class="hero-sub">منصة متكاملة تجمع المشاركين، المحكّمين، المرشدين، والإدارة في مكان واحد لتجربة هاكثون استثنائية.</p>
+
+  <div class="cd-mini">
+    <div class="cd-mini-box"><div class="cd-mini-num" id="cd-h">05</div><div class="cd-mini-unit">ساعة</div></div>
+    <div class="cd-mini-box"><div class="cd-mini-num" id="cd-m">30</div><div class="cd-mini-unit">دقيقة</div></div>
+    <div class="cd-mini-box"><div class="cd-mini-num" id="cd-s">00</div><div class="cd-mini-unit">ثانية</div></div>
+  </div>
+
+  <div class="hero-cta">
+    <a href="register.html" class="btn btn-primary">🚀 سجّل فريقك الآن</a>
+    <a href="admin.html" class="btn btn-ghost">⚙️ لوحة الإدارة</a>
+  </div>
+</section>
+
+<div style="position:relative;z-index:1;max-width:700px;margin:0 auto 60px;padding:0 24px">
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-num" id="st-teams">25</div><div class="stat-label">فريق مسجّل</div></div>
+    <div class="stat-item"><div class="stat-num" id="st-members">98</div><div class="stat-label">مشارك</div></div>
+    <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">محكّم</div></div>
+    <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">مرشد</div></div>
+    <div class="stat-item"><div class="stat-num">$15K</div><div class="stat-label">جوائز</div></div>
+  </div>
+</div>
+
+<div class="portals">
+  <div class="section-title">
+    <h2>البوابات الرئيسية</h2>
+    <p>اختر البوابة المناسبة لدورك في الهاكثون</p>
+  </div>
+  <div class="portals-grid">
+
+    <!-- Admin — wide -->
+    <a href="admin.html" class="portal-card wide" style="--pc:var(--teal)">
+      <div class="portal-glow"></div>
+      <div style="display:flex;align-items:flex-start;gap:16px">
+        <div>
+          <div class="portal-icon">🛡️</div>
+          <div class="portal-name">لوحة الإدارة الشاملة</div>
+          <div class="portal-desc">إدارة كاملة للهاكثون: الفرق، التحكيم، الإرشاد، الجدول، الإعلانات، الخدمات، والتحليلات في لوحة تحكم واحدة متكاملة.</div>
+          <div class="portal-tags">
+            <span class="portal-tag">إدارة الفرق</span>
+            <span class="portal-tag">التحكيم</span>
+            <span class="portal-tag">الجدول</span>
+            <span class="portal-tag">الإعلانات</span>
+            <span class="portal-tag">التحليلات</span>
+            <span class="portal-tag">الإعدادات</span>
+          </div>
+          <div class="portal-cta">
+            <span class="portal-access">للمنظّمين فقط</span>
+            <span class="portal-arrow">←</span>
+          </div>
+        </div>
+        <div style="min-width:120px;text-align:center;background:rgba(0,201,167,.06);border:1px solid rgba(0,201,167,.1);border-radius:12px;padding:16px;display:none" class="side-stat">
+          <div style="font-size:28px;font-weight:800;color:var(--teal)">25</div>
+          <div style="font-size:10px;color:var(--muted)">فريق نشط</div>
+        </div>
+      </div>
+    </a>
+
+    <!-- Participant -->
+    <a href="participant.html" class="portal-card" style="--pc:var(--blue)">
+      <div class="portal-glow"></div>
+      <div class="portal-icon">👥</div>
+      <div class="portal-name">بوابة المشاركين</div>
+      <div class="portal-desc">تابع تقدم فريقك، طلب خدمات، حجز جلسات إرشاد، واستعراض الترتيب والإعلانات.</div>
+      <div class="portal-tags">
+        <span class="portal-tag">فريقي</span>
+        <span class="portal-tag">الخدمات</span>
+        <span class="portal-tag">الإرشاد</span>
+        <span class="portal-tag">المتصدرون</span>
+      </div>
+      <div class="portal-cta">
+        <span class="portal-access">للمشاركين</span>
+        <span class="portal-arrow">←</span>
+      </div>
+    </a>
+
+    <!-- Register -->
+    <a href="register.html" class="portal-card" style="--pc:var(--green)">
+      <div class="portal-glow"></div>
+      <div class="portal-icon">📝</div>
+      <div class="portal-name">تسجيل الفريق</div>
+      <div class="portal-desc">سجّل فريقك في الهاكثون، أضف أعضاءك، اختر مسارك، وأرسل بياناتك للمراجعة.</div>
+      <div class="portal-tags">
+        <span class="portal-tag">تسجيل متعدد الخطوات</span>
+        <span class="portal-tag">اختيار المسار</span>
+        <span class="portal-tag">إضافة الأعضاء</span>
+      </div>
+      <div class="portal-cta">
+        <span class="portal-access">مفتوح للجميع</span>
+        <span class="portal-arrow">←</span>
+      </div>
+    </a>
+
+    <!-- Judge -->
+    <a href="judge.html" class="portal-card" style="--pc:var(--gold)">
+      <div class="portal-glow"></div>
+      <div class="portal-icon">⚖️</div>
+      <div class="portal-name">لوحة المحكّمين</div>
+      <div class="portal-desc">قيّم الفرق المخصصة لك بمنزلقات تفاعلية، استعرض النتائج، وتتبع تقدم التحكيم.</div>
+      <div class="portal-tags">
+        <span class="portal-tag">تقييم تفاعلي</span>
+        <span class="portal-tag">معايير مرنة</span>
+        <span class="portal-tag">تصدير النتائج</span>
+      </div>
+      <div class="portal-cta">
+        <span class="portal-access">للمحكّمين فقط</span>
+        <span class="portal-arrow">←</span>
+      </div>
+    </a>
+
+    <!-- Mentor -->
+    <a href="mentor.html" class="portal-card" style="--pc:var(--purple)">
+      <div class="portal-glow"></div>
+      <div class="portal-icon">🎓</div>
+      <div class="portal-name">لوحة المرشدين</div>
+      <div class="portal-desc">استقبل طلبات الإرشاد، جدوِل الجلسات، دوّن ملاحظاتك، وأدِر أوقات توفرك.</div>
+      <div class="portal-tags">
+        <span class="portal-tag">إدارة الطلبات</span>
+        <span class="portal-tag">جدولة الجلسات</span>
+        <span class="portal-tag">ملاحظات الفرق</span>
+      </div>
+      <div class="portal-cta">
+        <span class="portal-access">للمرشدين فقط</span>
+        <span class="portal-arrow">←</span>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- Features -->
+<div style="position:relative;z-index:1;max-width:1100px;margin:0 auto 80px;padding:0 24px">
+  <div class="section-title" style="margin-bottom:30px">
+    <h2>مميزات المنصة</h2>
+    <p>كل ما تحتاجه لإدارة هاكثون ناجح</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px">
+      <div style="font-size:24px;margin-bottom:10px">📊</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:5px">تحليلات فورية</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">إحصائيات ونتائج محدّثة في الوقت الفعلي لمتابعة التقدم.</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px">
+      <div style="font-size:24px;margin-bottom:10px">🔔</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:5px">إعلانات آنية</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">إرسال إعلانات مستهدفة للفرق أو المحكّمين أو الجميع.</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px">
+      <div style="font-size:24px;margin-bottom:10px">🛠️</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:5px">خدمات تقنية</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">إدارة وتوزيع الاعتمادات والأدوات التقنية على الفرق.</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px">
+      <div style="font-size:24px;margin-bottom:10px">🏆</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:5px">لوحة متصدرين</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">ترتيب الفرق تلقائياً بناءً على درجات التحكيم المتعددة.</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px">
+      <div style="font-size:24px;margin-bottom:10px">📐</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:5px">معايير مرنة</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">تخصيص أوزان معايير التحكيم بما يناسب طبيعة الهاكثون.</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px">
+      <div style="font-size:24px;margin-bottom:10px">📅</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:5px">جدول تفاعلي</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">جدول زمني قابل للتعديل مع تتبع حالة كل فعالية.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div style="margin-bottom:6px">⚡ <strong>HackOS</strong> — منصة إدارة الهاكثون الشاملة</div>
+  <div>جميع البوابات مترابطة ومتكاملة • نسخة تجريبية 2025</div>
+</footer>
+
+<script>
+// Countdown
+const deadline = new Date();
+deadline.setHours(deadline.getHours() + 5, 30, 0, 0);
+setInterval(() => {
+  const diff = deadline - new Date();
+  if (diff <= 0) return;
+  const h = Math.floor(diff/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('cd-h').textContent = pad(h);
+  document.getElementById('cd-m').textContent = pad(m);
+  document.getElementById('cd-s').textContent = pad(s);
+}, 1000);
+
+// Animate stats
+function animateNum(el, target, duration=1200) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = Math.round(start);
+    if (start >= target) clearInterval(timer);
+  }, 16);
+}
+setTimeout(() => {
+  const t = document.getElementById('st-teams');
+  const m = document.getElementById('st-members');
+  if (t) animateNum(t, 25);
+  if (m) animateNum(m, 98);
+}, 300);
+</script>
+</body>
+</html>
